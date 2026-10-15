@@ -60,6 +60,23 @@ def normalize_host(host: str) -> str:
     return url.raw_authority.lower()
 
 
+def _is_dimmable(value: object) -> bool:
+    """Normalize explicit flags; absent capability exposes only on/off control."""
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int) and value in (0, 1):
+        return value == 1
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in ("true", "1"):
+            return True
+        if normalized in ("false", "0"):
+            return False
+    raise DobissProtocolError("Invalid dimmable flag")
+
+
 class DobissClient:
     """Client using a caller-owned session and explicit transport selection."""
 
@@ -128,9 +145,7 @@ class DobissClient:
                         continue
                     if int(subject["icons_id"]) not in (0, 6):
                         continue
-                    dimmable = subject["dimmable"]
-                    if not isinstance(dimmable, bool):
-                        raise TypeError("Invalid dimmable flag")
+                    dimmable = _is_dimmable(subject.get("dimmable"))
                     light = Light(
                         address=int(subject["address"]),
                         channel=int(subject["channel"]),

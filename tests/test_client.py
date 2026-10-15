@@ -119,6 +119,71 @@ async def test_discovery_and_token(client: DobissClient, responses: Responses) -
 
 
 @pytest.mark.parametrize(
+    ("flag", "expected"),
+    [
+        (True, True),
+        (False, False),
+        ("true", True),
+        ("false", False),
+        ("1", True),
+        ("0", False),
+        (" FALSE ", False),
+        (1, True),
+        (0, False),
+        (None, False),
+    ],
+)
+async def test_discovery_flag_variants(
+    client: DobissClient, responses: Responses, flag: object, expected: bool
+) -> None:
+    """Do not mistake the non-empty strings 'false' and '0' for True."""
+    subject = DISCOVERY["groups"][0]["subjects"][0] | {"dimmable": flag}
+    responses.get(
+        "http://dobiss.local/api/local/discover",
+        payload={
+            "groups": [{"group": {"id": 1, "name": "Room"}, "subjects": [subject]}]
+        },
+    )
+    lights = await client.discover_lights()
+    assert len(lights) == 1
+    assert lights[0].dimmable is expected
+
+
+async def test_discovery_missing_capability(
+    client: DobissClient, responses: Responses
+) -> None:
+    """Missing dimming metadata still allows basic switching of a light."""
+    subject = {
+        key: value
+        for key, value in DISCOVERY["groups"][0]["subjects"][0].items()
+        if key != "dimmable"
+    }
+    responses.get(
+        "http://dobiss.local/api/local/discover",
+        payload={
+            "groups": [{"group": {"id": 1, "name": "Room"}, "subjects": [subject]}]
+        },
+    )
+    assert (await client.discover_lights())[0].dimmable is False
+
+
+@pytest.mark.parametrize("flag", ["unknown", "", 2, [], {}, 1.0])
+async def test_discovery_invalid_flag(
+    client: DobissClient, responses: Responses, flag: object
+) -> None:
+    """Unexpected flags must not silently enable dimming."""
+    subject = DISCOVERY["groups"][0]["subjects"][0] | {"dimmable": flag}
+    responses.get(
+        "http://dobiss.local/api/local/discover",
+        payload={
+            "groups": [{"group": {"id": 1, "name": "Room"}, "subjects": [subject]}]
+        },
+    )
+    with pytest.raises(DobissProtocolError, match="Invalid dimmable flag"):
+        await client.discover_lights()
+
+
+@pytest.mark.parametrize(
     ("payload", "expected"),
     [
         ({"status": {"4": [50]}}, 50),
