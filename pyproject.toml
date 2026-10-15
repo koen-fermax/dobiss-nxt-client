@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dobiss-nxt-client"
+version = "0.1.0"
+description = "Asynchronous client for the documented Dobiss NXT REST API"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+readme = "README.md"
+dependencies = ["aiohttp>=3.11", "PyJWT>=2.10"]
+
+[project.urls]
+Source = "https://github.com/koen-fermax/dobiss-nxt-client"
+Issues = "https://github.com/koen-fermax/dobiss-nxt-client/issues"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-asyncio"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.setuptools.package-data]
+dobiss_nxt = ["py.typed"]
