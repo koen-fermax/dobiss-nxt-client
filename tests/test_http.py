@@ -7,6 +7,7 @@ import jwt
 import pytest
 from aiohttp import web
 from aiohttp.test_utils import TestServer
+
 from dobiss_nxt import DobissAuthenticationError, DobissClient, Light
 
 SECRET = "synthetic-test-secret-not-a-real-key-123456"

@@ -1,6 +1,5 @@
 """Verify the wire protocol with synthetic, credential-free fixtures."""
 
-import asyncio
 from collections.abc import AsyncGenerator, Generator
 from types import SimpleNamespace
 from typing import Any
@@ -9,6 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import jwt
 import pytest
+
 from dobiss_nxt import (
     DobissAuthenticationError,
     DobissClient,
@@ -176,9 +176,7 @@ async def test_http_errors(
         await client.discover_lights()
 
 
-@pytest.mark.parametrize(
-    "error", [aiohttp.ClientConnectionError(), asyncio.TimeoutError()]
-)
+@pytest.mark.parametrize("error", [aiohttp.ClientConnectionError(), TimeoutError()])
 async def test_network_errors(
     client: DobissClient, responses: Responses, error: Exception
 ) -> None:
