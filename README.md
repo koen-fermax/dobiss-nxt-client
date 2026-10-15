@@ -8,8 +8,8 @@ protocol failures have separate exception classes. Only conventional light outpu
 
 Source and an enabled issue tracker are available on
 [GitHub](https://github.com/koen-fermax/dobiss-nxt-client).
-This package has **not been published to PyPI**. Its name and version are provisional
-until publication; verify the package name is available before creating a publisher.
+The package is available on [PyPI](https://pypi.org/project/dobiss-nxt-client/).
+Install it with `pip install dobiss-nxt-client`.
 
 ```python
 from aiohttp import ClientSession
@@ -24,5 +24,7 @@ async def read_lights(host: str, secret: str) -> None:
         print(states)
 ```
 
-Tests use synthetic API examples, not a real controller. Actual firmware compatibility
-must be verified on hardware before submission to Home Assistant.
+Automated tests use synthetic API examples and a loopback HTTP server. The user
+additionally verified discovery, status, on/off control, dimming and restoration
+on a real NXT v4.40 installation. Full operation inside Home Assistant remains to
+be verified before submitting the integration.
